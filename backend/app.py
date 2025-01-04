@@ -7,7 +7,7 @@ import base64
 from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
-with open(r'C:\Users\ASUS\Desktop\VS code\Web\Celeb\backend\model\model copy.pkl', 'rb') as file:
+with open(r'.\backend\model\model copy.pkl', 'rb') as file:
     model = pickle.load(file)
 
 class_names = [
@@ -83,4 +83,4 @@ def predict():
     print(predicted_class_name, confidence)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
