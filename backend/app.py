@@ -7,7 +7,7 @@ import base64
 from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
-with open(r'.\backend\model\model copy.pkl', 'rb') as file:
+with open(r'.\model\model copy.pkl', 'rb') as file:
     model = pickle.load(file)
 
 class_names = [
