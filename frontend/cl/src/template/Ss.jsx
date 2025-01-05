@@ -46,7 +46,11 @@ const Ss = () => {
 
   return (
     <div className="w-full bg-transparent overflow-hidden relative mt-8">
-      <Marquee gradient={false} autoFill pauseOnHover speed={40}>
+      <Marquee gradient={false} autoFill pauseOnHover speed={40} direction="left"
+  gradientColor={[255, 255, 255]}
+  gradientWidth={50}
+  pauseOnClick={true}
+  loop={0}>
         {images.map((image, index) => (
           <img
             key={index}
