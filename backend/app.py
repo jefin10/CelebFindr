@@ -5,6 +5,8 @@ import cv2
 from mtcnn import MTCNN
 import base64
 from flask_cors import CORS
+import requests
+import os
 app = Flask(__name__)
 CORS(app)
 def load_model():
