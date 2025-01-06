@@ -7,9 +7,29 @@ import base64
 from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
-with open(r'.\model\model copy.pkl', 'rb') as file:
-    model = pickle.load(file)
+def load_model():
+    try:
+        model_url = "https://huggingface.co/datasets/Killer007/Model_detec/resolve/main/model%20copy.pkl"
 
+        response = requests.get(model_url)
+        response.raise_for_status()  
+
+        temp_file = "model_copy.pkl"
+        with open(temp_file, "wb") as file:
+            file.write(response.content)
+
+        with open(temp_file, "rb") as file:
+            model = pickle.load(file)
+
+        print("Model loaded successfully!")
+        os.remove(temp_file)
+        return model
+    except Exception as e:
+        print(f"Error loading model: {e}")
+        return None
+
+# Load the model at startup
+model = load_model()
 class_names = [
     'Brad pitt', 'Kendall_jenner', 'Roanldo', 'Tom Cruise', 'angelina_jolie',
     'anne_hathaway', 'ariana_grande', 'christian_bale', 'cillian_murphy',
