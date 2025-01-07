@@ -7,6 +7,7 @@ import base64
 from flask_cors import CORS
 import requests
 import os
+
 app = Flask(__name__)
 CORS(app)
 def load_model():
@@ -30,7 +31,6 @@ def load_model():
         print(f"Error loading model: {e}")
         return None
 
-# Load the model at startup
 model = load_model()
 class_names = [
     'Brad pitt', 'Kendall_jenner', 'Roanldo', 'Tom Cruise', 'angelina_jolie',
