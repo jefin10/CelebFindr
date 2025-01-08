@@ -103,6 +103,13 @@ def predict():
         'confidence': confidence
     })
     print(predicted_class_name, confidence)
-
+@app.route('lookalike',methods=['POST'])
+def lookalike():
+    print(5)
+    data = request.json
+    if 'image' not in data:
+        return jsonify({'error': 'No image provided'}), 400
+    base64_image=data['image']
+    
 if __name__ == '__main__':
     app.run()
