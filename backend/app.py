@@ -41,7 +41,36 @@ class_names = [
     'scarlett_johansson', 'selena_gomez', 'shawn_mendes', 'taylor_swift',
     'virat_kohli'
 ]
-
+character_gender = {
+    'Brad pitt': True,
+    'Kendall_jenner': False,
+    'Roanldo': True,
+    'Tom Cruise': True,
+    'angelina_jolie': False,
+    'anne_hathaway': False,
+    'ariana_grande': False,
+    'christian_bale': True,
+    'cillian_murphy': True,
+    'emma_watson': False,
+    'hugh_jackman': True,
+    'jennifer_lawrence': False,
+    'johny depp': True,
+    'keanu_reeves': True,
+    'margot_robbie': False,
+    'messi': True,
+    'ms_dhoni': True,
+    'neymar': True,
+    'olivia_rodrigo': False,
+    'robert downey': True,
+    'sachin_tendulkar': True,
+    'scarlett_johansson': False,
+    'selena_gomez': False,
+    'shawn_mendes': True,
+    'taylor_swift': False,
+    'virat_kohli': True
+}
+mask_male=[True, False, True, True, False, False, False, True, True, False, True, False, True, True, False, True, True, True, False, True, True, False, False, True, False, True]
+mask_female=[False, True, False, False, True, True, True, False, False, True, False, True, False, False, True, False, False, False, True, False, False, True, True, False, True, False]
 detector = MTCNN()
 
 def decode_image(base64_string):
@@ -77,7 +106,7 @@ def preprocess_image(cropped_face):
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    print(4)
+    
     data = request.json
     if 'image' not in data:
         return jsonify({'error': 'No image provided'}), 400
@@ -103,13 +132,47 @@ def predict():
         'confidence': confidence
     })
     print(predicted_class_name, confidence)
-@app.route('lookalike',methods=['POST'])
+@app.route('/lookalike',methods=['POST'])
 def lookalike():
-    print(5)
+    print(4)
     data = request.json
-    if 'image' not in data:
+    if 'image' not in data: 
         return jsonify({'error': 'No image provided'}), 400
-    base64_image=data['image']
+    if 'gender' not in data:
+        return jsonify({'error': 'No gender provided'}), 400
+    gender=data['gender']
+    mask=[]
+    if gender:
+        mask=mask_male
+    else:
+        mask=mask_female
+
+    base64_image = data['image']
+    image = decode_image(base64_image)
+    if image is None:
+        return jsonify({'error': 'Invalid image'}), 400
+
+    cropped_face = detect_and_crop_face(image)
+    if cropped_face is None:
+        return jsonify({'error': 'No face detected'}), 400
+
+    img_array = preprocess_image(cropped_face)
+
+    predictions = model.predict(img_array)
+    predicted_class_index = np.argmax(predictions)
+    predicted_class_name = class_names[predicted_class_index]
+    confidence = float(predictions[0][predicted_class_index])
     
+    predictions_list = predictions.tolist()
+    filtered_predictions = [pred for pred, keep in zip(predictions, mask) if keep]
+
+    return jsonify({
+        'predictions': predictions_list,
+        'predicted_class': predicted_class_name,
+        'confidence': confidence,
+        'filtered_predictions': filtered_predictions
+    })
+
+
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
