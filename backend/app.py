@@ -170,7 +170,7 @@ def lookalike():
         'predictions': predictions_list,
         'predicted_class': predicted_class_name,
         'confidence': confidence,
-        'filtered_predictions': filtered_predictions
+       
     })
 
 
