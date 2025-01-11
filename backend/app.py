@@ -165,7 +165,7 @@ def lookalike():
     
     predictions_list = predictions.tolist()
     filtered_predictions = [pred for pred, keep in zip(predictions, mask) if keep]
-
+    #jsonify
     return jsonify({
         'predictions': predictions_list,
         'predicted_class': predicted_class_name,
