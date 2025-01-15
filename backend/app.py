@@ -31,7 +31,9 @@ def load_model():
         print(f"Error loading model: {e}")
         return None
 
-model = load_model()
+with open(r"C:\Users\ASUS\Desktop\VS code\Web\Celeb\backend\model\model copy.pkl", "rb") as file:
+    model = pickle.load(file)
+
 class_names = [
     'Brad pitt', 'Kendall_jenner', 'Roanldo', 'Tom Cruise', 'angelina_jolie',
     'anne_hathaway', 'ariana_grande', 'christian_bale', 'cillian_murphy',
@@ -69,8 +71,8 @@ character_gender = {
     'taylor_swift': False,
     'virat_kohli': True
 }
-mask_male=[True, False, True, True, False, False, False, True, True, False, True, False, True, True, False, True, True, True, False, True, True, False, False, True, False, True]
-mask_female=[False, True, False, False, True, True, True, False, False, True, False, True, False, False, True, False, False, False, True, False, False, True, True, False, True, False]
+mask_female=[True, False, True, True, False, False, False, True, True, False, True, False, True, True, False, True, True, True, False, True, True, False, False, True, False, True]
+mask_male=[False, True, False, False, True, True, True, False, False, True, False, True, False, False, True, False, False, False, True, False, False, True, True, False, True, False]
 detector = MTCNN()
 
 def decode_image(base64_string):
@@ -92,7 +94,6 @@ def detect_and_crop_face(image):
     cropped_face = rgb_image[y:y + height, x:x + width]  
     resized_face = cv2.resize(cropped_face, (128, 128))  
 
-    # Convert the face to grayscale
     grayscale_face = cv2.cvtColor(resized_face, cv2.COLOR_RGB2GRAY)
 
     return grayscale_face
@@ -109,16 +110,16 @@ def predict():
     
     data = request.json
     if 'image' not in data:
-        return jsonify({'error': 'No image provided'}), 400
+        return jsonify({'error': 'No image provided'})
 
     base64_image = data['image']
     image = decode_image(base64_image)
     if image is None:
-        return jsonify({'error': 'Invalid image'}), 400
+        return jsonify({'error': 'Invalid image'})
 
     cropped_face = detect_and_crop_face(image)
     if cropped_face is None:
-        return jsonify({'error': 'No face detected'}), 400
+        return jsonify({'error': 'No face detected'})
 
     img_array = preprocess_image(cropped_face)
 
@@ -126,13 +127,13 @@ def predict():
     predicted_class_index = np.argmax(predictions)
     predicted_class_name = class_names[predicted_class_index]
     confidence = float(predictions[0][predicted_class_index])
-
+    print(predicted_class_name, confidence)
     return jsonify({
         'predicted_class': predicted_class_name,
         'confidence': confidence
     })
-    print(predicted_class_name, confidence)
-@app.route('/lookalike',methods=['POST'])
+    
+@app.route('/lookalike', methods=['POST'])
 def lookalike():
     print(4)
     data = request.json
@@ -140,12 +141,9 @@ def lookalike():
         return jsonify({'error': 'No image provided'}), 400
     if 'gender' not in data:
         return jsonify({'error': 'No gender provided'}), 400
-    gender=data['gender']
-    mask=[]
-    if gender:
-        mask=mask_male
-    else:
-        mask=mask_female
+    
+    gender = data['gender']
+    mask = mask_male if gender else mask_female
 
     base64_image = data['image']
     image = decode_image(base64_image)
@@ -159,19 +157,24 @@ def lookalike():
     img_array = preprocess_image(cropped_face)
 
     predictions = model.predict(img_array)
-    predicted_class_index = np.argmax(predictions)
-    predicted_class_name = class_names[predicted_class_index]
-    confidence = float(predictions[0][predicted_class_index])
-    
-    predictions_list = predictions.tolist()
+    predictions = predictions[0] if len(predictions.shape) == 2 else predictions
+
     filtered_predictions = [pred for pred, keep in zip(predictions, mask) if keep]
-    #jsonify
+    filtered_classnames = [name for name, keep in zip(class_names, mask) if keep]
+
+    if not filtered_predictions:
+        return jsonify({'error': 'No valid predictions after applying the mask'}), 400
+
+    predicted_class_index = np.argmax(filtered_predictions)
+    predicted_class_name = filtered_classnames[predicted_class_index]
+    confidence = float(filtered_predictions[predicted_class_index]) 
+
     return jsonify({
-        'predictions': predictions_list,
+        'predictions': predictions.tolist(),  
         'predicted_class': predicted_class_name,
         'confidence': confidence,
-       
     })
+
 
 
 if __name__ == '__main__':

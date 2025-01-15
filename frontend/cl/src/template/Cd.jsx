@@ -6,6 +6,7 @@ import '../style/style.css';
 const Cd = () => {
   const [file, setFile] = useState(null);
   const [prediction, setPrediction] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
 
   const handleFileUpload = (event) => {
     setFile(event.target.files[0]);
@@ -26,11 +27,16 @@ const Cd = () => {
           image: base64Image,
         });
         setPrediction(response.data);
+        setIsModalOpen(true); 
       } catch (err) {
         console.error('Error:', err);
       }
     };
     reader.readAsDataURL(file);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false); 
   };
 
   return (
@@ -64,15 +70,31 @@ const Cd = () => {
           >
             Submit
           </button>
-          {prediction && (
-            <div className="mt-6 text-white">
-              <h3 className="text-xl font-bold mb-2">Prediction:</h3>
-              <p>Class: {prediction.predicted_class}</p>
-              <p>Confidence: {(prediction.confidence * 100).toFixed(2)}%</p>
-            </div>
-          )}
         </div>
       </div>
+
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-gray-800 rounded-lg p-6 w-[300px] shadow-lg transition-transform transform scale-110">
+            <h3 className="text-xl font-bold text-white mb-4">Prediction:</h3>
+            {prediction.error ? (
+              <p className="text-white">Error: {prediction.error}</p>
+            ) : (
+            <>
+              <p className="text-white">Detected Celebrity: {prediction.predicted_class}</p>
+              <p className="text-white">Confidence: {(prediction.confidence * 100).toFixed(2)}%</p>
+            </>
+)}
+
+            <button
+              onClick={closeModal}
+              className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 mt-4 rounded-full transition-colors duration-300 w-full"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 };
