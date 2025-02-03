@@ -6,7 +6,7 @@ import '../style/style.css';
 const Cd = () => {
   const [file, setFile] = useState(null);
   const [prediction, setPrediction] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false); 
 
   const handleFileUpload = (event) => {
     setFile(event.target.files[0]);
@@ -66,7 +66,7 @@ const Cd = () => {
           </div>
           <button
             onClick={handleClick}
-            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 mt-4 rounded-full transition-colors duration-300 w-[20%]"
+            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 mt-4 rounded-full transition-colors duration-300 w-[28%]"
           >
             Submit
           </button>
@@ -88,7 +88,7 @@ const Cd = () => {
 
             <button
               onClick={closeModal}
-              className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 mt-4 rounded-full transition-colors duration-300 w-full"
+              className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 mt-4 rounded-full transition-colors duration-300 w-full"
             >
               Close
             </button>
